@@ -1,6 +1,9 @@
 import cv2
+import shapely
 import numpy as np
 import math
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 
 # Paths to the YOLOv3 model files
 config_path = 'yolov3.cfg'
@@ -50,7 +53,6 @@ for output in outputs:
         
         # Only consider detections with high confidence
         if confidence > 0.5:
-            print(objectness)
             x = int(center_x - w / 2)
             y = int(center_y - h / 2)
             
@@ -61,14 +63,50 @@ for output in outputs:
 # Apply non-max suppression to filter overlapping boxes
 indices = cv2.dnn.NMSBoxes(boxes, confidences, score_threshold=0.4, nms_threshold=0.6)
 
+HOT_ZONE_W = 2500
+HOT_ZONE_H = 1100
+cv2.rectangle(
+    image,
+    (0, 0),
+    (math.floor(0 + HOT_ZONE_W), math.floor(0 + HOT_ZONE_H)),
+    (0, 255, 255),
+    2
+)
+
+shapely_boxes = []
+
 # Draw bounding boxes and labels
 # for i in range(len(boxes)):
-
 for i in indices:
     box = boxes[i]
     x, y, w, h = box
 
+    shapely_boxes.append(shapely.box(x, y, x + w, y + h))
+
     cv2.rectangle(image, (x, y), (math.floor(x + w), math.floor(y + h)), (0, 255, 0), 2)
+
+combined_box = shapely.union_all(shapely_boxes)
+combined_area = combined_box.area
+
+hot_zone = shapely.box(0, 0, HOT_ZONE_W, HOT_ZONE_H)
+hot_zone_intersection = shapely.intersection(combined_box, hot_zone)
+hot_zone_percentage = hot_zone_intersection.area / (HOT_ZONE_H * HOT_ZONE_W) * 100
+
+print(f"{len(boxes)} total people found")
+print(f"Hot zone {hot_zone_percentage:.2f}% full")
+
+fig, axs = plt.subplots()
+axs.set_aspect('equal', 'datalim')
+
+for geom in hot_zone_intersection.geoms:    
+    xs, ys = geom.exterior.xy    
+    axs.fill(xs, ys, alpha=0.5, fc='r', ec='none')
+
+hot_zone_rect = patches.Rectangle((0, 0), HOT_ZONE_W, HOT_ZONE_H, alpha=0.2, fc='y', ec='none')
+axs.add_patch(hot_zone_rect)
+axs.invert_yaxis()
+
+plt.show()
 
 # Display the image with detections
 cv2.imshow('Detection', image)
