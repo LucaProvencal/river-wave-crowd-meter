@@ -63,7 +63,7 @@ for output in outputs:
 # Apply non-max suppression to filter overlapping boxes
 indices = cv2.dnn.NMSBoxes(boxes, confidences, score_threshold=0.4, nms_threshold=0.6)
 
-HOT_ZONE_W = 2500
+HOT_ZONE_W = 2100
 HOT_ZONE_H = 1100
 cv2.rectangle(
     image,
@@ -81,7 +81,7 @@ for i in indices:
     box = boxes[i]
     x, y, w, h = box
 
-    shapely_boxes.append(shapely.box(x, y, x + w, y + h))
+    shapely_boxes.append(shapely.box(x, 0, x + w, HOT_ZONE_H))
 
     cv2.rectangle(image, (x, y), (math.floor(x + w), math.floor(y + h)), (0, 255, 0), 2)
 
