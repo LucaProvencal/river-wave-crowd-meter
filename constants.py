@@ -1,0 +1,7 @@
+MATCH_CONFIDENCE = 0.3
+HOT_ZONE_W = 2400
+HOT_ZONE_H = 1050
+
+YOLO_CONFIG_PATH = 'yolov3.cfg'
+YOLO_WEIGHTS_PATH = 'yolov3.weights'
+YOLO_CLASSES_PATH = 'coco.names'
