@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from constants import YOLO_CONFIG_PATH, YOLO_WEIGHTS_PATH, YOLO_CLASSES_PATH, MATCH_CONFIDENCE, HOT_ZONE_H, HOT_ZONE_W
+from constants import YOLO_CONFIG_PATH, YOLO_WEIGHTS_PATH, YOLO_CLASSES_PATH, MATCH_CONFIDENCE
 
 class Detector:
     def __init__(self):
